@@ -491,6 +491,6 @@ def get_commandes(
 
 if __name__ == "__main__":
     import uvicorn
-    print("🚀 Démarrage de l'API Superstore BI sur http://localhost:8000")
-    print("📚 Documentation disponible sur http://localhost:8000/docs")
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    print("🚀 Démarrage de l'API Superstore BI sur http://localhost:8001")
+    print("📚 Documentation disponible sur http://localhost:8001/docs")
+    uvicorn.run(app, host="0.0.0.0", port=8001)

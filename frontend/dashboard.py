@@ -71,7 +71,7 @@ st.markdown("""
 # === CONFIGURATION API ===
 # Utilise la variable d'environnement API_URL si définie (pour Docker),
 # sinon utilise localhost (pour développement local)
-API_URL = os.getenv("API_URL", "http://localhost:8000")
+API_URL = os.getenv("API_URL", "http://localhost:8001")
 
 # === FONCTIONS HELPERS ===
 
