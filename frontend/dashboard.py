@@ -58,6 +58,13 @@ st.markdown("""
     .css-1d391kg {
         background-color: #f8f9fa;
     }
+    
+    /* Force la visibilité des valeurs de métriques */
+    [data-testid="stMetricValue"] {
+        color: #1a1a1a !important;
+        font-weight: bold !important;
+        font-size: 1.5em !important;
+    }
 </style>
 """, unsafe_allow_html=True)
 

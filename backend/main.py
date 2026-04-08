@@ -11,6 +11,7 @@ from datetime import datetime
 import pandas as pd
 from pydantic import BaseModel
 import logging
+import os
 
 # Configuration du logger pour faciliter le débogage
 logging.basicConfig(level=logging.INFO)
@@ -36,22 +37,22 @@ app.add_middleware(
 
 # === CHARGEMENT DES DONNÉES ===
 
-# URL du dataset Superstore sur GitHub
-DATASET_URL = "https://raw.githubusercontent.com/leonism/sample-superstore/master/data/superstore.csv"
+# Chemin du dataset local - chemin absolu
+DATASET_PATH = os.path.join(os.path.dirname(__file__), "data", "superstore.csv")
 
 def load_data() -> pd.DataFrame:
     """
-    Charge le dataset Superstore depuis GitHub
+    Charge le dataset Superstore depuis un fichier local
     Nettoie et prépare les données pour l'analyse
     
     Returns:
         pd.DataFrame: Dataset nettoyé et prêt à l'emploi
     """
     try:
-        logger.info(f"Chargement du dataset depuis {DATASET_URL}")
+        logger.info(f"Chargement du dataset depuis {DATASET_PATH}")
         
         # Lecture du CSV
-        df = pd.read_csv(DATASET_URL, encoding='latin-1')
+        df = pd.read_csv(DATASET_PATH, encoding='latin-1')
         
         # Nettoyage des noms de colonnes (suppression espaces)
         df.columns = df.columns.str.strip()
