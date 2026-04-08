@@ -394,7 +394,56 @@ def get_analyse_clients(
         "recurrence": recurrence,
         "segments": segments.to_dict('records')
     }
-
+@app.get("/kpi/remises", tags=["KPI"])
+def get_analyse_remises():
+    """
+    💰 ANALYSE DES REMISES
+    
+    Analyse l'impact des remises sur les ventes et le profit :
+    - Montant total des remises
+    - Nombre de commandes avec remise
+    - Remise moyenne
+    - Impact sur le profit
+    - Produits les plus remisés
+    """
+    # Calculs globaux
+    df_avec_remise = df[df['Discount'] > 0]
+    
+    remise_totale = df_avec_remise['Discount'].sum() * 100  # Convertir en montant (Discount est en %)
+    nb_commandes_remise = df_avec_remise['Order ID'].nunique()
+    remise_moyenne = df_avec_remise['Discount'].mean() * 100 if len(df_avec_remise) > 0 else 0
+    
+    # Calcul de l'impact: comparaison profit avec/sans remise
+    profit_avec_remise = df_avec_remise['Profit'].sum()
+    profit_sans_remise = df[df['Discount'] == 0]['Profit'].sum()
+    profit_perdu = profit_sans_remise - profit_avec_remise if profit_avec_remise < profit_sans_remise else 0
+    
+    # Top produits remisés
+    produits_remises = df_avec_remise.groupby('Product Name').agg({
+        'Discount': 'mean',
+        'Sales': 'sum',
+        'Profit': 'sum',
+        'Order ID': 'count'
+    }).sort_values('Discount', ascending=False).head(10)
+    
+    top_produits_remises = []
+    for idx, row in produits_remises.iterrows():
+        top_produits_remises.append({
+            "produit": idx,
+            "remise_moyenne_pct": round(row['Discount'] * 100, 2),
+            "ca": round(row['Sales'], 2),
+            "profit": round(row['Profit'], 2),
+            "nb_commandes": int(row['Order ID'])
+        })
+    
+    return {
+        "remise_totale_montant": round(remise_totale, 2),
+        "nb_commandes_avec_remise": nb_commandes_remise,
+        "remise_moyenne_pct": round(remise_moyenne, 2),
+        "profit_perdu_estimation": round(profit_perdu, 2),
+        "pourcentage_commandes_remisees": round(nb_commandes_remise / df['Order ID'].nunique() * 100, 2),
+        "top_produits_remises": top_produits_remises
+    }
 @app.get("/filters/valeurs", tags=["Filtres"])
 def get_valeurs_filtres():
     """

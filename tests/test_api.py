@@ -306,6 +306,68 @@ class TestClients:
         assert isinstance(data, dict)
 
 
+class TestRemises:
+    """Tests pour l'endpoint Analyse des Remises"""
+    
+    def test_remises_returns_200(self):
+        """Test que l'endpoint remises retourne un status 200"""
+        response = client.get("/kpi/remises")
+        assert response.status_code == 200
+    
+    def test_remises_has_required_fields(self):
+        """Test que la réponse contient tous les champs requis"""
+        response = client.get("/kpi/remises")
+        data = response.json()
+        
+        required_fields = [
+            "remise_totale_montant",
+            "nb_commandes_avec_remise",
+            "remise_moyenne_pct",
+            "profit_perdu_estimation",
+            "pourcentage_commandes_remisees",
+            "top_produits_remises"
+        ]
+        
+        for field in required_fields:
+            assert field in data, f"Champ manquant: {field}"
+    
+    def test_remises_pourcentage_between_0_100(self):
+        """Test que les pourcentages sont entre 0 et 100"""
+        response = client.get("/kpi/remises")
+        data = response.json()
+        
+        assert 0 <= data["remise_moyenne_pct"] <= 100
+        assert 0 <= data["pourcentage_commandes_remisees"] <= 100
+    
+    def test_remises_top_produits_is_list(self):
+        """Test que top_produits_remises est une liste"""
+        response = client.get("/kpi/remises")
+        data = response.json()
+        
+        assert isinstance(data["top_produits_remises"], list)
+    
+    def test_remises_top_produits_fields(self):
+        """Test que chaque produit remisé a les champs requis"""
+        response = client.get("/kpi/remises")
+        data = response.json()
+        
+        required_fields = ["produit", "remise_moyenne_pct", "ca", "profit", "nb_commandes"]
+        
+        for produit in data["top_produits_remises"]:
+            for field in required_fields:
+                assert field in produit, f"Champ manquant: {field}"
+    
+    def test_remises_values_are_positive_or_zero(self):
+        """Test que les valeurs sont positives ou zéro"""
+        response = client.get("/kpi/remises")
+        data = response.json()
+        
+        assert data["remise_totale_montant"] >= 0
+        assert data["nb_commandes_avec_remise"] >= 0
+        assert data["remise_moyenne_pct"] >= 0
+        assert data["profit_perdu_estimation"] >= 0
+
+
 class TestFiltres:
     """Tests pour l'endpoint Filtres"""
     

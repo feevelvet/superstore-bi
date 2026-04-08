@@ -316,7 +316,7 @@ st.divider()
 st.header("📈 Analyses Détaillées")
 
 # Tabs pour organiser les différentes analyses
-tab1, tab2, tab3, tab4 = st.tabs(["🏆 Produits", "📦 Catégories", "📅 Temporel", "🌍 Géographique"])
+tab1, tab2, tab3, tab4, tab5 = st.tabs(["🏆 Produits", "📦 Catégories", "📅 Temporel", "🌍 Géographique", "💰 Remises"])
 
 # --- TAB 1 : PRODUITS ---
 with tab1:
@@ -629,6 +629,125 @@ with tab4:
             st.write(f"CA : {formater_euro(pire_region['ca'])}")
             st.write(f"Clients : {formater_nombre(pire_region['nb_clients'])}")
             st.write(f"Opportunité : Focus commercial pour augmenter la pénétration")
+
+# --- TAB 5 : REMISES ---
+with tab5:
+    st.subheader("Analyse des Remises")
+    
+    remises = appeler_api("/kpi/remises")
+    
+    # KPI Cards pour les remises
+    col_remise1, col_remise2, col_remise3, col_remise4 = st.columns(4)
+    
+    with col_remise1:
+        st.metric(
+            "💰 Remise Totale",
+            formater_euro(remises['remise_totale_montant']),
+            "Impact financier estimé"
+        )
+    
+    with col_remise2:
+        st.metric(
+            "📊 % Commandes Remisées",
+            formater_pourcentage(remises['pourcentage_commandes_remisees']),
+            f"{remises['nb_commandes_avec_remise']} commandes"
+        )
+    
+    with col_remise3:
+        st.metric(
+            "📈 Remise Moyenne",
+            formater_pourcentage(remises['remise_moyenne_pct']),
+            "Par commande remisée"
+        )
+    
+    with col_remise4:
+        st.metric(
+            "⚠️ Profit Perdu",
+            formater_euro(remises['profit_perdu_estimation']),
+            "Estimation de l'impact"
+        )
+    
+    st.divider()
+    
+    # Tableau des produits les plus remisés
+    st.markdown("### 🏷️ Top 10 Produits les Plus Remisés")
+    
+    df_produits_remises = pd.DataFrame(remises['top_produits_remises'])
+    
+    if len(df_produits_remises) > 0:
+        col_remise_fig1, col_remise_fig2 = st.columns(2)
+        
+        with col_remise_fig1:
+            # Graphique remise moyenne par produit
+            fig_remise_avg = px.bar(
+                df_produits_remises,
+                x='remise_moyenne_pct',
+                y='produit',
+                orientation='h',
+                title="Remise Moyenne par Produit",
+                labels={'remise_moyenne_pct': 'Remise Moyenne (%)', 'produit': 'Produit'},
+                color='remise_moyenne_pct',
+                color_continuous_scale='Reds',
+                text='remise_moyenne_pct',
+                height=500
+            )
+            fig_remise_avg.update_traces(texttemplate='%{text:.1f}%', textposition='outside')
+            st.plotly_chart(fig_remise_avg, use_container_width=True)
+        
+        with col_remise_fig2:
+            # Graphique impact: CA vs Profit
+            fig_remise_impact = px.scatter(
+                df_produits_remises,
+                x='ca',
+                y='profit',
+                size='nb_commandes',
+                hover_name='produit',
+                hover_data={'ca': ':.0f', 'profit': ':.0f', 'nb_commandes': True},
+                title="Impact CA vs Profit (Taille = Nb Commandes)",
+                labels={'ca': 'Chiffre d\'affaires (€)', 'profit': 'Profit (€)'},
+                color='remise_moyenne_pct',
+                color_continuous_scale='Reds',
+                height=500
+            )
+            st.plotly_chart(fig_remise_impact, use_container_width=True)
+        
+        st.markdown("### 📋 Tableau Détaillé")
+        st.dataframe(
+            df_produits_remises.rename(columns={
+                'produit': 'Produit',
+                'remise_moyenne_pct': 'Remise Moy. (%)',
+                'ca': 'CA (€)',
+                'profit': 'Profit (€)',
+                'nb_commandes': 'Nb Cmd'
+            }),
+            use_container_width=True,
+            hide_index=True
+        )
+        
+        # Insights sur les remises
+        st.markdown("### 💡 Insights Remises")
+        
+        col_insight_r1, col_insight_r2 = st.columns(2)
+        
+        with col_insight_r1:
+            st.info(
+                f"📌 **Remise Massive Détectée**\n\n"
+                f"Le produit le plus remisé reçoit {df_produits_remises.iloc[0]['remise_moyenne_pct']:.1f}% de remise en moyenne. "
+                f"Vérifiez si cette stratégie est intentionnelle."
+            )
+        
+        with col_insight_r2:
+            if remises['profit_perdu_estimation'] > 0:
+                st.warning(
+                    f"⚠️ **Attention aux Remises Excessives**\n\n"
+                    f"Les remises ont un impact estimé de **{formater_euro(remises['profit_perdu_estimation'])}** "
+                    f"sur le profit. Évaluez les stratégies de rabais."
+                )
+            else:
+                st.success(
+                    f"✅ **Stratégie de Remises Équilibrée**\n\n"
+                    f"Les remises ne diminuent pas significativement le profit global."
+                )
 
 st.divider()
 
