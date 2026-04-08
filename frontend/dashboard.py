@@ -1,7 +1,7 @@
 """
 Dashboard Streamlit pour l'analyse Superstore
-🎯 Niveau débutant - Interface intuitive et code commenté
-📊 Visualisations interactives avec Plotly
+Interface intuitive et code commenté
+Visualisations interactives avec Plotly
 """
 
 import streamlit as st
@@ -17,7 +17,7 @@ import os
 # === CONFIGURATION PAGE ===
 st.set_page_config(
     page_title="Superstore BI Dashboard",
-    page_icon="🛒",
+    page_icon="📊",
     layout="wide",  # Mode large pour utiliser tout l'écran
     initial_sidebar_state="expanded"
 )
@@ -123,27 +123,26 @@ with st.spinner("🔄 Connexion à l'API..."):
         st.stop()
 
 # === HEADER ===
-st.title("🛒 Superstore BI Dashboard")
+st.title("Superstore BI Dashboard")
 st.markdown("**Analyse Business Intelligence du dataset Superstore - Tableau de bord interactif**")
 
-# === DATA STORYTELLING INTRODUCTION ===
+# === HEADER CONTENT ===
 st.markdown("""
-### 📊 Insight du Dashboard
+### Analyse du Dashboard
 Ce tableau de bord analyse **les performances de ventes** du dataset Superstore pour identifier les tendances,
-les opportunités et les axes d'amélioration. Utilisez les filtres pour analyser des segments spécifiques et découvrir
-les leviers de croissance.
+les opportunités et les axes d'amélioration. Utilisez les filtres pour analyser des segments spécifiques.
 """)
 st.divider()
 
 # === SIDEBAR - FILTRES ===
-st.sidebar.header("🎯 Filtres d'analyse")
+st.sidebar.header("Filtres d'analyse")
 st.sidebar.markdown("*Ajustez les filtres pour analyser des segments spécifiques*")
 
 # Récupération des valeurs disponibles pour les filtres
 valeurs_filtres = appeler_api("/filters/valeurs")
 
 # --- Filtre temporeù‰l ---
-st.sidebar.subheader("📅 Période")
+st.sidebar.subheader("Période")
 date_min = datetime.strptime(valeurs_filtres['plage_dates']['min'], '%Y-%m-%d')
 date_max = datetime.strptime(valeurs_filtres['plage_dates']['max'], '%Y-%m-%d')
 
@@ -188,7 +187,7 @@ segment = st.sidebar.selectbox(
 )
 
 # Bouton pour réinitialiser les filtres
-if st.sidebar.button("🔄 Réinitialiser les filtres", use_container_width=True):
+if st.sidebar.button("Réinitialiser les filtres", use_container_width=True):
     st.rerun()
 
 st.sidebar.divider()
@@ -267,7 +266,7 @@ with col4:
 
 st.divider()
 
-# === SECTION STORYTELLING : INSIGHTS AUTOMATIQUES ===
+# === KPI INSIGHTS ===
 st.header("💡 Insights Clés & Analyse")
 
 # Calcul des insights
@@ -522,7 +521,7 @@ with tab3:
         meilleure_periode = df_temporal.loc[df_temporal['ca'].idxmax()]
         st.metric("🏆 Meilleure période", meilleure_periode['periode'])
     
-    # === STORYTELLING TEMPOREL ===
+    # === TEMPORAL ANALYSIS ===
     st.markdown("### 📈 Analyse des Tendances Temporelles")
     
     # Détection tendance
@@ -603,7 +602,7 @@ with tab4:
         hide_index=True
     )
     
-    # === STORYTELLING GÉOGRAPHIQUE ===
+    # === GEOGRAPHIC ANALYSIS ===
     st.markdown("### 🌍 Analyse Géographique")
     
     if len(df_geo) > 0:
@@ -663,7 +662,7 @@ with col_client2:
     taux_fidelisation = (rec['clients_recurrents'] / rec['total_clients'] * 100) if rec['total_clients'] > 0 else 0
     st.metric("Taux de fidélisation", f"{taux_fidelisation:.1f}%")
 
-# === STORYTELLING CLIENTS ===
+# === CLIENT ANALYSIS ===
 st.markdown("### 💭 Analyse Clients & Fidélisation")
 
 try:
